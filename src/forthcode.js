@@ -1,12 +1,16 @@
 var React=require("react");
 var ForthCode=React.createClass({
-	sendCode:function() {
-		this.props.onForth(this.refs.forthcode.getDOMNode().value);
+	genJsCode:function() {
+		this.props.onF2Js(this.refs.forthcode.getDOMNode().value);
+	}
+	,runJsCode:function() {
+		this.props.onRunJs();
 	}
 	,render:function() {
 		return <div>
-				<textarea ref="forthcode" defaultValue="1 3 + ."/>
-				<button onClick={this.sendCode}>Transpile</button>
+				<textarea id="fInputBox" ref="forthcode" defaultValue="1 3 + ."/><br/>
+				<button onClick={this.genJsCode}>genJsCode</button>
+				<button onClick={this.runJsCode}>runJsCode</button>
 			</div>
 	}
 });

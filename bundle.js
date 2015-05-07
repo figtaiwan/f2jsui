@@ -7311,13 +7311,17 @@ module.exports=Base64;
 },{}],"C:\\ksana2015\\f2jsui\\src\\forthcode.js":[function(require,module,exports){
 var React=require("react");
 var ForthCode=React.createClass({displayName: "ForthCode",
-	sendCode:function() {
-		this.props.onForth(this.refs.forthcode.getDOMNode().value);
+	genJsCode:function() {
+		this.props.onF2Js(this.refs.forthcode.getDOMNode().value);
+	}
+	,runJsCode:function() {
+		this.props.onRunJs();
 	}
 	,render:function() {
 		return React.createElement("div", null, 
-				React.createElement("textarea", {ref: "forthcode", defaultValue: "1 3 + ."}), 
-				React.createElement("button", {onClick: this.sendCode}, "Transpile")
+				React.createElement("textarea", {id: "fInputBox", ref: "forthcode", defaultValue: "1 3 + ."}), React.createElement("br", null), 
+				React.createElement("button", {onClick: this.genJsCode}, "genJsCode"), 
+				React.createElement("button", {onClick: this.runJsCode}, "runJsCode")
 			)
 	}
 });
@@ -7333,7 +7337,7 @@ var JsCode=React.createClass({displayName: "JsCode",
 		this.refs.jscode.getDOMNode().contentEditable=true;
 	}
 	,render:function() {
-		return React.createElement("div", {ref: "jscode", style: {whiteSpace:"pre"}}, this.props.code)
+		return React.createElement("pre", {id: "jInputBox", ref: "jscode", style: {whiteSpace:"pre"}}, this.props.code)
 	}
 });
 
@@ -7347,34 +7351,42 @@ var transpile=require("../../forthtranspiler").transpile;
 var Base64=require("./base64");
 var maincomponent = React.createClass({displayName: "maincomponent",
   getInitialState:function() {
-    return {code:"javascript transpiled code here"};
+    return {code:"", out:""};
   }
   ,embeddedSourceMap:function(jscode,sourcemap) {
     return jscode+"//# sourceMappingURL=data:application/json;base64,"+Base64.encode(sourcemap);
   }
   ,injectScript:function(jscode,sourcemap) {
-     var blob = new Blob([this.embeddedSourceMap(jscode,sourcemap)], {type: 'text/javascript'}),
-      // create a script element
-      script = document.createElement('script'),
-      // turn the blob into a url
-      url = URL.createObjectURL(blob);
-      script.src = url;
-      console.log(url)
-      script.setAttribute("name", "javascript dynamic script");
-      // add the script to the end of the head section
-      document.head.appendChild(script);
+    var blob = new Blob([this.embeddedSourceMap(jscode,sourcemap)], {type: 'text/javascript'}),
+    // create a script element
+    script = document.createElement('script'),
+    // turn the blob into a url
+    url = URL.createObjectURL(blob);
+    script.src = url;
+    console.log(url)
+    script.setAttribute("name", "javascript dynamic script");
+    // add the script to the end of the head section
+    document.head.appendChild(script);
   }
-  ,onForth:function(input) {
-    var res=transpile.transpile(input,"input.f","output.js");
+  ,onF2Js:function(input) {
+    var res=transpile.transpile(input,"input.f","output.js"), out=this.state.out;
+    out+=(out?'\n':'')+'inp: <inp>'+input+'</inp>';
     this.injectScript(res.js+"\nconsole.log('hi')",res.sourcemap.toString());
-    this.setState({code:res.js})
+    this.setState({code:res.js,out:out});
+  }
+  ,onRunJs:function() {
+    var res=eval(this.state.code), out=this.state.out;
+    out+=(out?'\n':'')+'out: '+JSON.stringify(res.out)+'\nstack: <ok>'+JSON.stringify(res.stack)+'</ok>';
+    this.setState({out:out});
   }
   ,render: function() {
-
     return React.createElement("div", null, 
-      React.createElement(ForthCode, {onForth: this.onForth}), 
+      "ForthCode:", React.createElement("br", null), 
+      React.createElement(ForthCode, {onF2Js: this.onF2Js, onRunJs: this.onRunJs}), 
+      "JsCode:", React.createElement("br", null), 
       React.createElement(JsCode, {code: this.state.code}), 
-      React.createElement(OutputLog, null)
+      "OutputLog:", React.createElement("br", null), 
+      React.createElement(OutputLog, {out: this.state.out})
     );
   }
 });
@@ -7382,9 +7394,14 @@ module.exports=maincomponent;
 },{"../../forthtranspiler":"C:\\ksana2015\\forthtranspiler\\index.js","./base64":"C:\\ksana2015\\f2jsui\\src\\base64.js","./forthcode":"C:\\ksana2015\\f2jsui\\src\\forthcode.js","./jscode":"C:\\ksana2015\\f2jsui\\src\\jscode.js","./outputlog":"C:\\ksana2015\\f2jsui\\src\\outputlog.js","react":"react"}],"C:\\ksana2015\\f2jsui\\src\\outputlog.js":[function(require,module,exports){
 var React=require("react");
 var OutputLog=React.createClass({displayName: "OutputLog",
-
-	render:function() {
-		return React.createElement("div", null, "OutputLog")
+	componentWillReceiveProps:function(nextProps) {
+		console.log(nextProps);
+	}
+	,componentDidMount:function() {
+		this.refs.outputlog.getDOMNode().contentEditable=true;
+	}
+	,render:function() {
+		return React.createElement("pre", {id: "outputBox", ref: "outputlog", style: {whiteSpace:"pre"}}, this.props.out)
 	}
 });
 

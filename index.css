@@ -1,3 +1,10 @@
 /* application css */
-#main {font-size:200%;}
-.hl {color:red;}
+#main	  {font-size:120%;}
+.hl	  {color:red;}
+#fInputBox{font-size:80%;border:1px solid fuchsia;width:100%;height:10%}
+#jInputBox{font-size:80%;border:1px solid fuchsia;width:100%;height:40%}
+#outputBox{font-size:80%;border:1px solid fuchsia;width:100%;height:30%}
+button	  {font-size:80%;}
+inp	  {color:blue}
+ok	  {color:green}
+err	  {color:red}

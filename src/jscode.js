@@ -7,7 +7,7 @@ var JsCode=React.createClass({
 		this.refs.jscode.getDOMNode().contentEditable=true;
 	}
 	,render:function() {
-		return <div ref="jscode" style={{whiteSpace:"pre"}}>{this.props.code}</div>
+		return <pre id="jInputBox" ref="jscode" style={{whiteSpace:"pre"}}>{this.props.code}</pre>
 	}
 });
 
