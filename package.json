@@ -1,0 +1,25 @@
+{
+  "name": "ksana2015-scaffold-default",
+  "description": "New Ksana application",
+  "version": "0.0.1",
+  "main": "index.html",
+  "inject-js-start": "nwmain.js",
+  "single-instance": true,
+  "window": {
+    "toolbar": true,
+    "width": 1060,
+    "height": 700
+  },
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/figtaiwan/f2jsui"
+  },
+  "gitHead": "a08ba5a835a973dc002639928269fa3c36026141",
+  "readme": "scaffold for ksana2015 app\r\n====\r\n\r\ninstall github.com/ksanaforge/ksana2015\r\n\r\nks mkdb sample\r\n\r\nreact-bundle.js is created with \r\n\r\n    browserify -r react -r react/addons > react-bundle.js",
+  "readmeFilename": "README.md",
+  "_id": "ksana2015-scaffold-default@0.0.1",
+  "_shasum": "b8fa736ca01b95ec6c3dfdbf0932c8a49ca6f00f",
+  "_from": "..\\Users\\chen\\AppData\\Local\\Temp\\npm-5744-bff571c3\\git-cache-0b3c77416cfb\\a08ba5a835a973dc002639928269fa3c36026141",
+  "_resolved": "git+https://github.com/ksanaforge/ksana2015-scaffold-default.git#a08ba5a835a973dc002639928269fa3c36026141"
+}
