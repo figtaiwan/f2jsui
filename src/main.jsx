@@ -26,13 +26,14 @@ var maincomponent = React.createClass({
   ,onF2Js:function(input) {
     var res=transpile.transpile(input,"input.f","output.js"), out=this.state.out;
     out+=(out?'\n':'')+'inp: <inp>'+input+'</inp>';
-    this.injectScript(res.js+"\nconsole.log('hi')",res.sourcemap.toString());
+//  this.injectScript(res.js+"\nconsole.log('hi')",res.sourcemap.toString());
+    this.injectScript("console.log('hi, forth code has been just transpiled to js code')",res.sourcemap.toString());
     this.setState({code:res.js,out:out});
   }
   ,onRunJs:function() {
     var res=eval(this.state.code), out=this.state.out;
     out+=(out?'\n':'')+'out: '+JSON.stringify(res.out)+'\nstack: <ok>'+JSON.stringify(res.stack)+'</ok>';
-    this.setState({out:out});
+    this.setState({out:out})
   }
   ,render: function() {
     return <div>

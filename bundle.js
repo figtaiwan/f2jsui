@@ -7371,13 +7371,14 @@ var maincomponent = React.createClass({displayName: "maincomponent",
   ,onF2Js:function(input) {
     var res=transpile.transpile(input,"input.f","output.js"), out=this.state.out;
     out+=(out?'\n':'')+'inp: <inp>'+input+'</inp>';
-    this.injectScript(res.js+"\nconsole.log('hi')",res.sourcemap.toString());
+//  this.injectScript(res.js+"\nconsole.log('hi')",res.sourcemap.toString());
+    this.injectScript("console.log('hi, forth code has been just transpiled to js code')",res.sourcemap.toString());
     this.setState({code:res.js,out:out});
   }
   ,onRunJs:function() {
     var res=eval(this.state.code), out=this.state.out;
     out+=(out?'\n':'')+'out: '+JSON.stringify(res.out)+'\nstack: <ok>'+JSON.stringify(res.stack)+'</ok>';
-    this.setState({out:out});
+    this.setState({out:out})
   }
   ,render: function() {
     return React.createElement("div", null, 
@@ -11010,14 +11011,12 @@ if(typeof module==='object'){
 
 },{"./constructing":"C:\\ksana2015\\forthtranspiler\\src\\constructing.js","./corewords":"C:\\ksana2015\\forthtranspiler\\src\\corewords.js","./state":"C:\\ksana2015\\forthtranspiler\\src\\state.js","./tools":"C:\\ksana2015\\forthtranspiler\\src\\tools.js"}],"C:\\ksana2015\\forthtranspiler\\src\\runtime.js":[function(require,module,exports){
 (function (global){
-var runtimecode=
-["var stack=[], _out='';"
-,"var runtime={stack:stack,out:_out};"]
+var stack=[], _out='', runtime={stack:stack,out:_out};
 if(typeof module==='object'){
-	module.exports=runtimecode,
-	global.runtimecode=runtimecode;
+	module.exports=runtime,
+	global.runtime=runtime;
 }else{
-	window.runtimecode=runtimecode;
+	window.runtime=runtime;
 }
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
@@ -11225,10 +11224,11 @@ var forth2op=function(lines){ /// transpile lines of forth codes, return lines o
 						if(m=line.substr(state.forthncol).match(/^"([^\"\n\r]*)"/)){
 							// value type 2, a string in double quotes not including \r or \n
 							token=m[0], n=m[1];
-							var iRest=iCol[state.iTok]+n.length, rest=line.substr(iRest);
+							var iRest=iCol[state.iTok]+n.length, rest=line.substr(iRest).trim();
 							var iTok1=state.iTok-1;
 							state.tokens[iTok1++]=n;
-							state.tokens=state.tokens.slice(0,iTok1).concat(rest.trim().split(/\s+/));
+							state.tokens=state.tokens.slice(0,iTok1);
+							if(rest)state.tokens=state.tokens.concat(rest.split(/\s+/));
 							iCol=iCol.slice(0,iTok1);
 							rest.replace(/\S+/g,function(tkn,j){
 								iCol[iTok1++]=j+iRest;
@@ -11296,7 +11296,7 @@ var transpilejs=function(forthCodes,runtime,inputfn,outputfn) {
 	var tokens=state.tokens=[], opCodes=state.opCodes=[], defined=global.defined={}, iCol=state.iCol=[];
 	state.iLin=0, state.iTok=0, state.iOpCode=0;
 	var line='', token, opCode;
-	state.jsline=runtime.length+2;   //generated javascript code line count, for source map
+	state.jsline=runtime.split('\n').length+2;   //generated javascript code line count, for source map
 	var codegen=state.codegen=[];                //generated javsacript code
 	var forthnline=0,forthncol=0;  //line and col of forth source code
 	var opCodes=state.opCodes=forth2op(lines);
@@ -11305,7 +11305,7 @@ var transpilejs=function(forthCodes,runtime,inputfn,outputfn) {
 	return {jsCodes:jsCodes,sourcemap:state.sourcemap,opCodes:opCodes};
 }
 
-var runtimecode=require("./runtime");
+var runtime=require("./runtime");
 var Transpile={};
 Transpile.transpile=function(forth,inputfn,outputfn) {
 	if(typeof module==='object')tools.newMapping();
@@ -11316,6 +11316,7 @@ Transpile.transpile=function(forth,inputfn,outputfn) {
 			line=chalk.bold.green(line);
 		console.log('// trans <-- '+line);
 	});
+	var runtimecode='var stack=runtime.stack, _out='+JSON.stringify(runtime.out)+';';
 	var test=transpilejs(forth,runtimecode,inputfn);
 	var jsCodes=test.jsCodes;
 	var sourcemap=test.sourcemap;
@@ -11324,8 +11325,8 @@ Transpile.transpile=function(forth,inputfn,outputfn) {
 		return x+line;
 	});
 	jsCode=tools.pretty(jsCode.join('\n'));
-	var code =	runtimecode.join('\n')	+"\n"
-			 +	"(function(runtime){"	+"\n"
+	var code =	"(function(runtime){"	+"\n"
+			 +	runtimecode				+"\n"
 			 +	jsCode					+"\n"
 			 +	"runtime.out=_out;"		+"\n"
 			 +	"return runtime;"		+"\n"
